@@ -1,0 +1,582 @@
+﻿
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+    <title>Adpro - Reports</title>
+    <script type="text/javascript">
+        var appRoot = '@System.Web.Configuration.WebConfigurationManager.AppSettings["RootPath"]';
+    </script>
+    <style tye="text/css">
+        #divPrintReport span {
+            margin-left: 10px;
+        }
+
+        .tables tr:nth-child(2n+1) {
+            vertical-align: middle;
+            /*border-left: .3px solid #dddddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #cbcbcb;
+            line-height: 1.5;
+        }
+
+        .tables tr th {
+            vertical-align: middle;
+            /*border-left: .3px solid #ddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #404040;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.44;
+            padding: 4px !important;
+        }
+
+       .tables tr th:nth-child(1) {
+            width: 280px;
+        }
+
+        .tables tr th:nth-child(9) {
+            text-align: right;
+        }
+
+        .tables tr td {
+            vertical-align: middle;
+            /*border-top: .3px solid #dddddd;*/
+            font-size: 12px;
+            line-height: 1.44;
+            border: 1px solid #000 !important;
+            padding: 4px !important;
+        }
+
+        .tables tr:nth-child(2n) {
+            vertical-align: middle;
+            /*border-left: .3px solid #dddddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #e7e7e7;
+            line-height: 1.5;
+        }
+
+        .tables tr td:nth-child(9) {
+            text-align: right;
+        }
+
+
+        .grandTotalDiv {
+            width: 430px;
+            margin-top: -21px;
+            font-weight: 800;
+        }
+
+        .collectionDiv {
+            width: 430px;
+            /*border-top:1px solid;*/
+        }
+    </style>
+</head>
+<body>
+    <div id="divPrintReport" style="overflow: hidden;background:#fff;">
+        <div style="text-align:right;margin:10px;" id="btnprintreport">
+            <input type="button" value="Print this page" onclick="PrintReport()" style="width:10% !important" />
+        </div>
+        <div style="margin:10px;">
+            <div style="background: #385723;color: #fff;">
+                <h2 style="text-align:center;">Collection By Agent</h2>
+                <div style="font-size:16px;padding:.3rem;font-weight:bolder;">
+                    <label>Agent Name : <label id="lbltotalusername"></label></label>
+                    <div>Date : <label id="lblfromdate"></label>&nbsp;to&nbsp;<label id="lbltodate"></label></div>
+                </div>
+            </div>
+            <div id="MainDiv"></div>
+        </div>
+
+    </div>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <script src="~/Scripts/Report.js?BuildNo=@System.Web.Configuration.WebConfigurationManager.AppSettings[" BuildNo"]"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            TotalReportData();
+        });
+
+
+        function TotalReportData() {
+            totalamt = 0;
+            qStr = window.location.href.split('#')[0];
+            var FromDate = qStr.split('?')[1].split('=')[1].split('&')[0];
+            var ToDate = qStr.split('?')[1].split('=')[2];
+            $("#lblfromdate").text(FromDate);
+            $("#lbltodate").text(ToDate);
+            var userid = getCookie('LoginUserID');
+            var reportid = getCookie('ReportID');
+            var url = appRoot + "Reports/GetBookedReportData";
+            var param = {};
+            param.FromDate = FromDate;
+            param.ToDate = ToDate;
+            param.UserID = userid;
+            param.ReportID = reportid;
+            var result = getresult(url, param);
+            //var table = makeGridTable(result);
+            userAcSummary(result);
+            //normaliseData(result);
+            //$("#TotalAdsGrid").append(table);
+            var name = getCookie('LoginUser');
+            if (result.length > 1) {
+                $("#lbltotalusername").html(result[1][11]);
+            }
+        }
+
+        function userAcSummary(data) {
+            if (data.length < 2) {
+                return;
+            }
+
+            var headerData = data[0];
+            var firstUserId = data[1][9];
+            var userName = data[1][10];
+            var paymentType = data[1][1];
+            var paymentModes = {};
+            var totalAmount = 0;
+            var paymentTypeSum = 0;
+            var acDiv = $("<div/>");
+            //var userDiv = $("<div/>");
+            //$(userDiv).html(userName);
+            //$(acDiv).append(userDiv);
+
+            var userDivlabel = '<div><label style="margin-right: 5px;">User : </label>' + userName + '<div>';
+            $('#MainDiv').append(userDivlabel);
+
+            var newData = [];
+            var userCollection = [];
+            //run for all rows
+            for (var i = 1; i < data.length; i++) {
+                //if user is not same
+                if (data[i][9] !== firstUserId || i == data.length - 1) {
+                    if (i == data.length - 1) {
+                        if (paymentType != data[i][1]) {
+                            paymentType = data[i][1];
+                            $(acDiv).append(UserAcTable(newData, headerData));
+                            newData = [];
+                            //newData.push(data[i]);
+                            //userCollection.push(data[i]);
+                        }
+                        newData.push(data[i]);
+                        userCollection.push(data[i]);
+                    }
+                    firstUserId = data[i][9];
+                    if (paymentTypeSum > 0)
+                        paymentModes[paymentType] = paymentTypeSum;
+                    //$(tbody).append(addTotal(totalAmount));
+                    //$(tbody).append(totalUserWise(userName, totalAmount));
+                    //collectionSummary(tbody, paymentModes);
+                    paymentModes = {};
+                    $(acDiv).append(UserAcTable(newData, headerData, userCollection));
+                    //$(acDiv).append(collectionSummary(userCollection));
+                    userCollection = [];
+                    $('#MainDiv').append(acDiv);
+                    if (i == data.length - 1) continue;
+                    totalAmount = 0;
+                    paymentType = data[i][1];
+                    newData = [];
+
+                    acDiv = $("<div/>");
+                    // userDiv = $("<div/>");
+                    userName = data[i][10];
+
+                    var userDivlabel = '<div><label style="margin-right: 5px;">User : </label>' + userName + '<div>';
+                    $('#MainDiv').append(userDivlabel);
+
+                    //$(userDiv).html(userName);
+                    //$(acDiv).append(userDiv);
+
+                }
+
+                if (paymentType != data[i][1]) {
+                    paymentType = data[i][1];
+                    $(acDiv).append(UserAcTable(newData, headerData));
+                    newData = [];
+                    newData.push(data[i]);
+                    userCollection.push(data[i]);
+                } else {
+                    newData.push(data[i]);
+                    userCollection.push(data[i]);
+                }
+
+            }
+
+        }
+
+        function UserAcTable(data, headerData, userCollection) {
+            //var userName = data[1][10];
+            //var paymentType = data[1][1];
+            var userName = data[0][10];
+            var paymentType = data[0][1];
+            var paymentModes = {};
+            var totalAmount = 0;
+            var paymentTypeSum = 0;
+            var acDiv = $("<div/>");
+            var userDiv = $("<div/>").append('<label>' + paymentType + '</label>');
+            //$(userDiv).html(paymentType);
+            $(acDiv).append(userDiv);
+            var table = $("<table/>").addClass('table');
+            $(acDiv).append(table);
+            var th = header(headerData);
+            table.append(th);
+            var tbody = $("<tbody/>").addClass('tables');
+            table.append(tbody);
+            for (var i = 0; i < data.length; i++) {
+
+                var tr = $("<tr/>");
+
+                //run for all data
+                for (var j = 0; j < data[i].length - 4; j++) {
+
+                    //on change of paymentMode
+                    if (paymentType != data[i][j] && j == 1) {
+                        paymentModes[paymentType] = paymentTypeSum;
+                        paymentType = data[i][j];
+                        paymentTypeSum = 0;
+                    }
+                    var td = $("<td/>");
+                    $(td).html(data[i][j]);
+                    tr.append(td);
+                    if (j == 8) {
+                        totalAmount += data[i][j] * 1;
+                        paymentTypeSum += data[i][j] * 1;
+                    }
+                }
+                tbody.append(tr);
+
+            }
+            $(tbody).append(addTotal(totalAmount));
+            collectionSummary(userCollection, tbody);
+            //$(tbody).append(totalUserWise(userName, totalAmount));
+            return acDiv;
+        }
+
+        function collectionSummary_old(data) {
+            //var paymentType = data[1][1];
+            var paymentType = data[0][1];
+            var paymentModes = {};
+            var total = 0;
+            var grandTotal = 0;
+            //var userName = data[1][10];
+            var userName = data[0][10];
+            for (var i = 0; i < data.length; i++) {
+                if (paymentType != data[i][1]) {
+                    paymentModes[paymentType] = total;
+                    total = 0;
+                    total += data[i][8] * 1;
+                    grandTotal += data[i][8] * 1;
+                    paymentType = data[i][1];
+                } else {
+                    total += data[i][8] * 1;
+                    grandTotal += data[i][8] * 1;
+                }
+            }
+            if (total > 0) {
+                paymentModes[paymentType] = total;
+                total = 0;
+            }
+            var parentDiv = $("<div/>");
+            var grandTotalDiv = $("<div/>").addClass('grandTotalDiv');
+            var collectionDiv = $("<div/>").addClass('collectionDiv');
+            $(parentDiv).append(grandTotalDiv);
+            $(parentDiv).append(collectionDiv);
+
+            var table = $("<table/>").addClass('table');
+            $(grandTotalDiv).append(table);
+            var tbody = $("<tbody/>").addClass('tables');
+            table.append(tbody);
+            var tr = $("<tr/>");
+            var td1 = $("<td/>").css('width', '298px');
+            $(td1).html('Total ' + userName);
+            $(tr).append(td1);
+
+            var td2 = $("<td/>").css('text-align', 'right');
+            $(td2).html(grandTotal.toFixed(2));
+            $(tr).append(td2);
+
+            $(tbody).append(tr);
+
+            var table = $("<table/>").addClass('table');
+            $(collectionDiv).append(table);
+            var tbody = $("<tbody/>").addClass('tables');
+            table.append(tbody);
+
+            var tr = $("<tr/>");
+            var td1 = $("<td/>").css('font-weight', '800');
+            $(td1).attr('colspan', 2);
+            $(td1).html('Collection Summary');
+            $(tr).append(td1);
+            $(tbody).append(tr);
+            var totalCollection = 0;
+            for (var ind in paymentModes) {
+                var tr = $("<tr/>");
+                var td1 = $("<td/>").css('width', '298px');
+                $(td1).html('Total ' + ind);
+                $(tr).append(td1);
+                var td2 = $("<td/>").css('text-align', 'right');
+                $(td2).html(paymentModes[ind].toFixed(2));
+                $(tr).append(td2);
+                $(tbody).append(tr);
+                totalCollection += paymentModes[ind];
+            }
+            var tr = $("<tr/>");
+            var td1 = $("<td/>").css('font-weight', '800').css('text-align', 'right');
+            $(td1).html('Total Collection');
+            $(tr).append(td1);
+            var td2 = $("<td/>").css('font-weight', '800').css('text-align', 'right');
+            $(td2).html(totalCollection.toFixed(2));
+            $(tr).append(td2);
+            $(tbody).append(tr);
+
+            return parentDiv;
+        }
+
+        function collectionSummary(data, tbody) {
+            if (!data) {
+                return;
+            }
+            //var paymentType = data[1][1];
+            var paymentType = data[0][1];
+            var paymentModes = {};
+            var total = 0;
+            var grandTotal = 0;
+            //var userName = data[1][10];
+            var userName = data[0][10];
+            for (var i = 0; i < data.length; i++) {
+                if (paymentType != data[i][1]) {
+                    paymentModes[paymentType] = total;
+                    total = 0;
+                    total += data[i][8] * 1;
+                    grandTotal += data[i][8] * 1;
+                    paymentType = data[i][1];
+                } else {
+                    total += data[i][8] * 1;
+                    grandTotal += data[i][8] * 1;
+                }
+            }
+            if (total > 0) {
+                paymentModes[paymentType] = total;
+                total = 0;
+            }
+            /*
+            var parentDiv = $("<div/>");
+            var grandTotalDiv = $("<div/>").addClass('grandTotalDiv');
+            var collectionDiv = $("<div/>").addClass('collectionDiv');
+            $(parentDiv).append(grandTotalDiv);
+            $(parentDiv).append(collectionDiv);
+
+            var table = $("<table/>").addClass('table');
+            $(grandTotalDiv).append(table);
+            var tbody = $("<tbody/>").addClass('tables');
+            table.append(tbody);
+            */
+            var tr = $("<tr/>").css('font-weight', '800');
+            var td1 = $("<td/>").attr('colspan', '1');
+            $(td1).html('Total ' + userName);
+            $(tr).append(td1);
+
+            var td2 = $("<td/>").css('text-align', 'right');
+            $(td2).html(grandTotal.toFixed(2));
+            $(tr).append(td2);
+
+            $(tbody).append(tr);
+
+            var h4blank = '<tr><td colspan="2" style="background: #fff;border-left: 1px solid #fff !important;border-right: .9px solid #fff !important;height:15px;"></td></tr>';
+            $(tbody).append(h4blank);
+            /*
+                        var table = $("<table/>").addClass('table');
+                        $(collectionDiv).append(table);
+                        var tbody = $("<tbody/>").addClass('tables');
+                        table.append(tbody);
+            */
+            var tr = $("<tr/>");
+            var td1 = $("<td/>").css('font-weight', '800').attr('colspan', '2');
+            $(td1).html('Collection Summary');
+            $(tr).append(td1);
+            $(tbody).append(tr);
+            var totalCollection = 0;
+            for (var ind in paymentModes) {
+                var tr = $("<tr/>");
+                var td1 = $("<td/>").attr('colspan', '1');
+                $(td1).html('Total ' + ind);
+                $(tr).append(td1);
+                var td2 = $("<td/>").css('text-align', 'right');
+                $(td2).html(paymentModes[ind].toFixed(2));
+                $(tr).append(td2);
+                $(tbody).append(tr);
+                totalCollection += paymentModes[ind];
+            }
+            var tr = $("<tr/>");
+            var td1 = $("<td/>").css('font-weight', '800').css('text-align', 'right').attr('colspan', '1');
+            $(td1).html('Total Collection');
+            $(tr).append(td1);
+            var td2 = $("<td/>").css('font-weight', '800').css('text-align', 'right');
+            $(td2).html(totalCollection.toFixed(2));
+            $(tr).append(td2);
+            $(tbody).append(tr);
+
+            //return parentDiv;
+        }
+
+        function totalUserWise(user, amount) {
+            var tr = $("<tr/>");
+            var td1 = $("<td/>");
+            $(td1).html('Total ' + user);
+            var td2 = $("<td/>");
+            $(td2).attr('colspan', 2);
+            $(td2).html(amount);
+            var td3 = $("<td/>");
+            $(td3).attr('colspan', 6);
+            //$(td3).html(amount);
+            tr.append(td1); tr.append(td2); tr.append(td3);
+            return tr;
+        }
+
+        function addTotal(amount) {
+            var tr = $("<tr/>").css('font-weight', '800');
+            //var td1 = $("<td/>");
+            //$(td1).attr('colspan', 7);
+            var td2 = $("<td/>");
+            $(td2).attr('colspan', 8).css('text-align', 'right');
+            $(td2).html('Total Amount');
+            var td3 = $("<td/>").css('text-align', 'right');
+            $(td3).html(amount.toFixed(2));
+           /* tr.append(td1);*/ tr.append(td2); tr.append(td3);
+            return tr;
+        }
+
+        function normaliseData(data) {
+            var crData = {};
+            var dt = [];
+            var tp = "";
+            var tq = "";
+            var j = 0, k = 0
+            for (var i = 1; i < data.length; i++) {
+                if (tp == "") {
+                    tp = data[i][1];
+                }
+
+                if (tp != data[i][1]) {
+                    tp = data[i][1];
+                    crData[j] = dt;
+                    dt = []; j++; k = 0;
+                    dt[k] = data[i];
+                } else {
+                    dt[k] = data[i];
+                }
+                k++;
+            }
+            crData[j] = dt;
+            var hdata = data[0];
+            for (var index in crData) {
+                var table = TotalmakeGridTable(crData[index], hdata);
+                $("#TotalAdsGrid").append(table);
+                footer(crData[index]);
+            }
+        }
+
+        function header(data) {
+            var thead = $('<thead/>').addClass('tables');
+            var tr = $('<tr/>');
+            $(thead).append(tr);
+            for (var i = 0; i < data.length - 4; i++) {
+                var th = $('<th/>');
+                $(th).html(data[i]);
+                $(tr).append(th);
+            }
+            return thead;
+        }
+
+        function TotalmakeGridTable(data, hdata) {
+
+            //var postedad = 0;
+            //var notpostedad = 0;
+            var amount = 0;
+            var table = $("<table/>").addClass('table');
+            var th = header(hdata);
+            table.append(th);
+            var tbody = $("<tbody/>").addClass('tables');
+            table.append(tbody);
+            if (data.length > 0) {
+                $.each(data, function (rowIndex, r) {
+                    if (typeof r != 'undefined') {
+                        var row = $("<tr/>");
+                        $.each(r, function (colIndex, c) {
+                            if (colIndex > 8) {
+
+                            }
+                            else {
+                                row.append($("<td/>").text(c));
+                                amount = amount + parseFloat(r[8]);
+                            }
+                        });
+                        table.append(row);
+                    }
+                });
+                $("#totaladscountdiv").show();
+            }
+            else {
+                table = '<div class="error-box">Sorry !! No Record Found.</div>';
+                $("#totaladscountdiv").hide();
+            }
+            $("#lbltableusername").html(data[0][10]);
+            $("#lbluser").html(data[0][10]);
+            //$("#totalamount").html(amount.toFixed(2));
+
+
+            //var modeamount = '<tr><td style="width:2px;"><label style="width:295px;">Total ' + data[0][1] + '</label></td><td><label>' + amount + '</label></td></tr>';
+            //$("#tbody1").append(modeamount);
+
+            //var username = '<div><label>User:</label><span style="margin-left:1px !important;">' + data[0][11]+'</span>';
+            //$("#TotalAdsGrid").append(username);
+
+            var paymentmode = '<div><label>' + data[0][1] + '</label></div>';
+            $("#TotalAdsGrid").append(paymentmode);
+
+            //$("#lblpostedad").html(postedad);
+            //$("#lblnotpostedad").html(notpostedad);
+            //$("#lbltotalad").html(data.length - 1);
+            return table;
+        }
+
+        function footer(data) {
+            var amount = 0;
+            var str2 = "";
+            for (var i = 0; i < data.length; i++) {
+                amount = amount + parseFloat(data[i][8]);
+            }
+            str2 = '<table style="margin-top: -20px;float:right;"><tbody class="tables"><tr><td style="width:502px;"><label style="margin-left:8px;">Total ' + data[0][1] + '</label></td><td style="width:103px;"><span style="margin-right:5px;float:right;">' + amount.toFixed(2) + '<span></td></tr></tbody></table>';
+            $("#TotalAdsGrid").append(str2);
+
+            var totalamount = amount;
+            totalamt = totalamt + totalamount;
+            $("#totalamount").html(totalamt.toFixed(2));
+
+            var modeamount = '<tr><td style="width:2px;"><label style="width:295px;">Total ' + data[0][1] + '</label></td><td><label>' + amount.toFixed(2) + '</label></td></tr>';
+            $("#tbody1").append(modeamount);
+        }
+
+        function PrintReport() {
+            $("#btnprintreport").hide();
+            window.print();
+            $("#btnprintreport").show();
+            return false;
+        }
+    </script>
+</body>
+</html>
+

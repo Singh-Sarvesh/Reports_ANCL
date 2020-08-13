@@ -1,0 +1,298 @@
+﻿body {
+    background-color: #70ad47;
+    font: 13px Arial;
+    margin: 0;
+    padding: 0;
+}
+
+input[type=text] {
+    min-width: 225px;
+}
+
+input[type=dropdown] {
+    min-width: 230px;
+}
+
+
+.table {
+    width: 100%;
+    height: 100%;
+}
+
+    .table tr {
+        height: 20px;
+    }
+
+.width150 {
+    width: 150px;
+}
+
+.width100 {
+    width: 100px;
+}
+
+.minwidth230 {
+    min-width: 230px;
+}
+
+.col1 {
+    text-align: left;
+    width: 4%;
+    font: 1.1em;
+}
+
+.col1X {
+    text-align: left;
+    width: 10%;
+    font: 1.1em;
+}
+
+.col2 {
+    width: 1%;
+    text-align: left;
+}
+
+.col3 {
+    text-align: left;
+    width: 4.5%;
+}
+
+.col3X {
+    text-align: left;
+    width: 9.4%;
+}
+
+.col3Y {
+    text-align: left;
+    width: 9%;
+}
+
+.col4X {
+    width: 10%;
+    text-align: left;
+}
+
+.col4 {
+    width: 10%;
+    text-align: left;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.txtalingncenter {
+    text-align: center;
+}
+
+.height {
+    height: 2px;
+}
+
+.left {
+    float: left;
+}
+
+.marginleft3per {
+    margin-left: 3%;
+}
+
+.margintop10 {
+    margin-top: 10px;
+}
+
+header {
+    /*color: #fff;
+    font: bold 30px arial;
+    text-align: center;*/
+    font-size:30px;
+    text-align:center;
+    height:60px;
+}
+
+.Header {
+    color: black;
+    font: bold 20px arial;
+    margin-left: 18px;
+}
+
+.errormsg {
+    text-align: center;
+    color: red;
+}
+
+.fontpt7 {
+    font-size: 0.7em;
+}
+
+.form-control {
+    vertical-align: middle;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    height: 28px;
+    padding-left: 4px;
+    font-size: .9em;
+}
+
+.uibutton {
+    margin-left: 50px;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    height: 35px;
+    padding-left: 4px;
+    font-size: 1.4em;
+}
+
+a {
+    text-decoration: none;
+}
+    /* unvisited link */
+    a:link {
+        color: white;
+    }
+
+    /* visited link */
+    a:visited {
+        color: #ffffff;
+    }
+
+    /* mouse over link */
+    a:hover {
+        color: #fc960c;
+    }
+
+    /* selected link */
+    a:active {
+        color: blue;
+        cursor: pointer;
+        font-weight:700;
+        font-size:20px;
+    }
+/* start for Active Tabs*/
+.active1 {
+    color: #fd4819;
+    cursor: pointer;
+}
+
+    .active1:hover {
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+.inactive:hover {
+    color: #fc960c;
+    cursor: pointer;
+}
+
+/*end for Active Tabs*/
+.RowStyle {
+    height: 100px;
+}
+
+.AlternateRowStyle {
+    height: 100px;
+}
+
+.red {
+    color: red;
+}
+
+.Preview-btn {
+    color: #fff;
+    background-color: #385723;
+    border-color: #385723;
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    padding: .375rem .75rem;
+    /*font-size: 1rem;*/
+    line-height: 1.5;
+    border: 1px solid #385723;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    min-width:70px;
+}
+
+nav#navt a {
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+#rpttd div{
+    margin:20px 20px;
+}
+
+#rpttd label {
+    margin-left: 20px;
+}
+
+#rpttd input {
+    margin-left: 20px;
+}
+
+#rpttd select {
+    margin-left: 20px;
+    width: 225px;
+}
+
+#publisherdiv div {
+    margin-left: 0px !important;
+}
+
+#deferreddiv div {
+    margin-left: 0px !important;
+}
+
+#publisherdiv label {
+    width: 120px;
+}
+
+#deferreddiv label {
+    width: 120px;
+}
+
+
+.site-menu {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 10px 0 0 15px;
+}
+
+.site-name {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 10px 0 0 65px;
+}
+
+.site-report {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 10px 0 0 315px;
+}
+
+.user-detail {
+    display: block;
+    white-space: nowrap;
+    color: #ffffff;
+    font-size: 16px;
+    float: right;
+    padding: 15px 15px 0;
+}

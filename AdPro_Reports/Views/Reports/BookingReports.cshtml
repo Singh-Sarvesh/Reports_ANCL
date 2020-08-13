@@ -1,0 +1,452 @@
+﻿
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+    <title>Adpro - Reports</title>
+    <script type="text/javascript">
+        var appRoot = '@System.Web.Configuration.WebConfigurationManager.AppSettings["RootPath"]';
+    </script>
+    <style tye="text/css">
+        #divPrintReport span {
+            margin-left: 10px;
+        }
+
+        .tables tr:nth-child(2n+1) {
+            vertical-align: middle;
+            /*border-left: .3px solid #dddddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #cbcbcb;
+            line-height: 1.5;
+        }
+
+        .tables tr th {
+            vertical-align: middle;
+            /*border-left: .3px solid #ddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #404040;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.44;
+            padding:4px !important;
+        }
+
+        .tables tr td {
+            vertical-align: middle;
+            /*border-top: .3px solid #dddddd;*/
+            font-size: 12px;
+            line-height: 1.44;
+            border: 1px solid #000 !important;
+            padding:4px !important;
+        }
+
+        .tables tr:nth-child(2n) {
+            vertical-align: middle;
+            border-left: .3px solid #dddddd;
+            border-top: .3px solid #dddddd;
+            background-color: #e7e7e7;
+            line-height: 1.5;
+        }
+
+        #adstable tr th:nth-child(2) {
+            width:280px;
+        }
+
+        #adstable tr th:nth-child(6) {
+            text-align: right;
+        }
+
+        #adstable tr th:nth-child(7) {
+            text-align: right;
+        }
+
+        #adstable tr th:nth-child(8) {
+            text-align: right;
+        }
+
+        #adstable tr td:nth-child(6) {
+            text-align: right;
+        }
+
+        #adstable tr td:nth-child(7) {
+            text-align: right;
+        }
+
+        #adstable tr td:nth-child(8) {
+            text-align: right;
+        }
+
+        #cmntbl tr th:nth-child(1) {
+            width: 280px;
+        }
+
+        #cmntbl tr th:nth-child(9) {
+            text-align: right;
+        }
+
+        #cmntbl tr td:nth-child(9) {
+            text-align: right;
+        }
+
+
+        #canceltbl tr th:nth-child(2) {
+            width: 280px;
+        }
+
+        #canceltbl tr th:nth-child(6) {
+            text-align: right;
+        }
+
+        #canceltbl tr th:nth-child(7) {
+            text-align: right;
+        }
+
+        #canceltbl tr td:nth-child(6) {
+            text-align: right;
+        }
+
+        #canceltbl tr td:nth-child(7) {
+            text-align: right;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="divPrintReport" style="overflow: hidden;background:#fff;">
+        <div style="text-align:right;margin:10px;" id="btnprintreport">
+            <input type="button" value="Print this page" onclick="PrintReport()" style="width:10% !important" />
+        </div>
+        <div style="margin:10px;">
+            <div style="background: #385723;color: #fff;">
+                <h2 style="text-align:center;" id="reportname"></h2>
+                <div style="font-size:16px;padding:.3rem;font-weight:bolder;">
+                    <label>Agent Name : <label id="lblusername"></label></label>
+                    <div>Date : <label id="lblfromdate"></label>&nbsp;to&nbsp;<label id="lbltodate"></label></div>
+                </div>
+            </div>
+            <div>
+                <div id="divlogPopUp" style="overflow-x: hidden;overflow-y:auto">
+                    <div id="AdsGrid"></div>
+                    <div id="AdsGrid" style="width:100%;height:300px;overflow-y:auto;overflow-x:hidden;"></div>
+                    @*<h4 style="clear:both;"></h4>
+                    <div id="adscountdiv" style="display:none;">
+                        <table class="table">
+                            <tbody class="tables">
+                                <tr>
+                                    <td class="adcound1sttd">
+                                        Total ads posted to Adpro
+                                    </td>
+                                    <td>
+                                        <label id="lblpostedad"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Total ads not-posted to Adpro
+                                    </td>
+                                    <td>
+                                        <label id="lblnotpostedad"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Total number of ads booked
+                                    </td>
+                                    <td>
+                                        <label id="lbltotalad"></label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>*@
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <script src="~/Scripts/Report.js?BuildNo=@System.Web.Configuration.WebConfigurationManager.AppSettings[" BuildNo"]"></script>
+    <script type="text/javascript">
+        var postedad = 0;
+        var notpostedad = 0;
+        $(document).ready(function () {
+            ReportData();
+
+        });
+
+
+        function ReportData() {
+            var table = "";
+            qStr = window.location.href.split('#')[0];
+            var FromDate = qStr.split('?')[1].split('=')[1].split('&')[0];
+            var ToDate = qStr.split('?')[1].split('=')[2];
+            $("#lblfromdate").text(FromDate);
+            $("#lbltodate").text(ToDate);
+            var userid = getCookie('LoginUserID');
+            var reportid = getCookie('ReportID');
+            var url = appRoot + "Reports/GetBookedReportData";
+            var param = {};
+            param.FromDate = FromDate;
+            param.ToDate = ToDate;
+            param.UserID = userid;
+            param.ReportID = reportid;
+            var result = getresult(url, param);
+            if (reportid == 93 || reportid == 99) {
+                table = makeAdsGridTable(result);
+                if (result.length > 1) {
+                    $("#lblusername").html(result[1][8]);
+                }
+            }
+            else {
+                if (reportid == 100) {
+                    table = makeCancelGridTable(result);
+                }
+                else {
+                    table = makeGridTable(result);
+                }
+                if (result.length > 1) {
+                    if (reportid == 100) {
+                        $("#lblusername").html(result[1][7]);
+                    }
+                    else {
+                        $("#lblusername").html(result[1][11]);
+                    }
+                }
+            }
+            $("#AdsGrid").append(table);
+
+            $("#lblpostedad").html(postedad);
+            $("#lblnotpostedad").html(notpostedad);
+            $("#lbltotalad").html(result.length - 1);
+            //var name = getCookie('LoginUser');
+            //$("#lblusername").html(data);
+
+            //if (reportid == 93 || reportid == 99) {
+            //    setTimeout(function () {
+            //        var ctrl = $("#adstable").find("tr td:eq(0)");
+            //        var ctrl1 = $("#adstable").find("tr td:eq(1)");
+            //        var width = ctrl[0].offsetWidth + ctrl1[0].offsetWidth;
+            //        $(".adcound1sttd").css('width', width);
+            //    }, 100);
+            //}
+            //else {
+            //    setTimeout(function () {
+            //        var ctrl = $("#cmntbl").find("tr td:eq(0)");
+            //        var ctrl1 = $("#cmntbl").find("tr td:eq(1)");
+            //        var width = ctrl[0].offsetWidth + ctrl1[0].offsetWidth;
+            //        $(".adcound1sttd").css('width', width);
+            //    }, 100);
+            //}
+
+            var reportname = getCookie('ReportName');
+            $("#reportname").html(reportname);
+        }
+
+        function makeAdsGridTable(data) {
+            postedad = 0;
+            notpostedad = 0;
+            var table = $("<table/>").addClass('table');
+            var tbody = $("<tbody/>").addClass('tables').attr('id', 'adstable');
+            table.append(tbody);
+            if (data.length > 1) {
+                $.each(data, function (rowIndex, r) {
+                    var row = $("<tr/>");
+                    $.each(r, function (colIndex, c) {
+                        if (rowIndex > 0 && colIndex == 4 && c > 0) {
+                            postedad = postedad + 1;
+                        }
+                        else if (rowIndex > 0 && colIndex == 4) {
+                            notpostedad = notpostedad + 1;
+                        }
+                        if (colIndex > 7) {
+
+                        }
+                        else {
+                            row.append($("<t" + (rowIndex == 0 ? "h" : "d") + "/>").text(c));
+                        }
+                    });
+                    table.append(row);
+                });
+                var h4blank = '<tr><td colspan="3" style="background: #fff;border-left: 1px solid #fff !important;border-right: .9px solid #fff !important;height:15px;"></td></tr>';
+                var footerdata = '<tr><td colspan="2">Total ads posted to Adpro</td><td colspan="1" style="text-align:right;"><label id="lblpostedad"></label></td></tr>'
+                    + '<tr><td colspan="2">Total ads not-posted to Adpro</td><td colspan="1" style="text-align:right;"><label id="lblnotpostedad"></label></td></tr>'
+                    + '<tr><td colspan="2">Total number of ads booked</td><td colspan="1" style="text-align:right;"><label id="lbltotalad"></label></td></tr>';
+                // $("#adscountdiv").show();
+                table.append(h4blank);
+                table.append(footerdata);
+            }
+            else {
+                table = '<div class="error-box">Sorry !! No Record Found.</div>';
+               // $("#adscountdiv").hide();
+            }
+            //$("#lblpostedad").html(postedad);
+            //$("#lblnotpostedad").html(notpostedad);
+            //$("#lbltotalad").html(data.length - 1);
+            return table;
+        }
+
+        function makeGridTable(data) {
+            postedad = 0;
+            notpostedad = 0;
+            var table = $("<table/>").addClass('table');
+            var tbody = $("<tbody/>").addClass('tables').attr('id', 'cmntbl');;
+            table.append(tbody);
+            if (data.length > 1) {
+                $.each(data, function (rowIndex, r) {
+                    var row = $("<tr/>");
+                    $.each(r, function (colIndex, c) {
+                        if (rowIndex > 0 && colIndex == 7 && c != 0) {
+                            postedad = postedad + 1;
+                        }
+                        else if (rowIndex > 0 && colIndex == 7) {
+                            notpostedad = notpostedad + 1;
+                        }
+                        if (colIndex > 8) {
+
+                        }
+                        else {
+                            row.append($("<t" + (rowIndex == 0 ? "h" : "d") + "/>").text(c));
+                        }
+                    });
+                    table.append(row);
+                });
+                var h4blank = '<tr><td colspan="2" style="background: #fff;border-left: 1px solid #fff !important;border-right: .9px solid #fff !important;height:15px;"></td></tr>';
+                var footerdata = '<tr><td colspan="1">Total ads posted to Adpro</td><td colspan="1" style="text-align:right;"><label id="lblpostedad"></label></td></tr>'
+                    + '<tr><td colspan="1">Total ads not-posted to Adpro</td><td colspan="1" style="text-align:right;"><label id="lblnotpostedad"></label></td></tr>'
+                    + '<tr><td colspan="1">Total number of ads booked</td><td colspan="1" style="text-align:right;"><label id="lbltotalad"></label></td></tr>';
+                // $("#adscountdiv").show();
+                table.append(h4blank);
+                table.append(footerdata);
+            }
+            else {
+                table = '<div class="error-box">Sorry !! No Record Found.</div>';
+               // $("#adscountdiv").hide();
+            }
+            //$("#lblpostedad").html(postedad);
+            //$("#lblnotpostedad").html(notpostedad);
+            //$("#lbltotalad").html(data.length - 1);
+            return table;
+        }
+
+        function makeCancelGridTable(data) {
+            postedad = 0;
+            notpostedad = 0;
+            var table = $("<table/>").addClass('table');
+            var tbody = $("<tbody/>").addClass('tables').attr('id', 'canceltbl');;
+            table.append(tbody);
+            if (data.length > 1) {
+                $.each(data, function (rowIndex, r) {
+                    var row = $("<tr/>");
+                    $.each(r, function (colIndex, c) {
+                        if (rowIndex > 0 && colIndex == 7 && c != 0) {
+                            postedad = postedad + 1;
+                        }
+                        else if (rowIndex > 0 && colIndex == 7) {
+                            notpostedad = notpostedad + 1;
+                        }
+                        if (colIndex > 6) {
+
+                        }
+                        else {
+                            row.append($("<t" + (rowIndex == 0 ? "h" : "d") + "/>").text(c));
+                        }
+                    });
+                    table.append(row);
+                });
+                var h4blank = '<tr><td colspan="3" style="background: #fff;border-left: 1px solid #fff !important;border-right: .9px solid #fff !important;height:15px;"></td></tr>';
+                var footerdata = '<tr><td colspan="2">Total ads posted to Adpro</td><td colspan="1" style="text-align:right;"><label id="lblpostedad"></label></td></tr>'
+                    + '<tr><td colspan="2">Total ads not-posted to Adpro</td><td colspan="1" style="text-align:right;"><label id="lblnotpostedad"></label></td></tr>'
+                    + '<tr><td colspan="2">Total number of ads booked</td><td colspan="1" style="text-align:right;"><label id="lbltotalad"></label></td></tr>';
+                // $("#adscountdiv").show();
+                table.append(h4blank);
+                table.append(footerdata);
+            }
+            else {
+                table = '<div class="error-box">Sorry !! No Record Found.</div>';
+                // $("#adscountdiv").hide();
+            }
+            //$("#lblpostedad").html(postedad);
+            //$("#lblnotpostedad").html(notpostedad);
+            //$("#lbltotalad").html(data.length - 1);
+            return table;
+        }
+
+        function PrintReport() {
+            $("#btnprintreport").hide();
+            var reportid = getCookie('ReportID');
+
+            //if (reportid == 93) {
+            //    var width = $("#adstable").find("tr td:eq(0)").width() + $("#adstable").find("tr td:eq(1)").width();
+            //    $(".adcound1sttd").css('width', width);
+            //}
+            //else if (reportid == 99) {
+            //    var width = $("#adstable").find("tr td:eq(0)").width() + $("#adstable").find("tr td:eq(1)").width() + 32;
+            //    $(".adcound1sttd").css('width', width);
+            //}
+            //else if (reportid == 100) {
+            //    var width = $("#cmntbl").find("tr td:eq(0)").width() + $("#cmntbl").find("tr td:eq(1)").width() + 50;
+            //    $(".adcound1sttd").css('width', width);
+            //}
+            //else {
+            //    var width = $("#cmntbl").find("tr td:eq(0)").width() + $("#cmntbl").find("tr td:eq(1)").width() - 25;
+            //    $(".adcound1sttd").css('width', width);
+            //}
+
+            window.print();
+            $("#btnprintreport").show();
+            //if (reportid == 93 || reportid == 99) {
+            //    setTimeout(function () {
+            //        var ctrl = $("#adstable").find("tr td:eq(0)");
+            //        var ctrl1 = $("#adstable").find("tr td:eq(1)");
+            //        var width = ctrl[0].offsetWidth + ctrl1[0].offsetWidth;
+            //        $(".adcound1sttd").css('width', width);
+            //    }, 100);
+            //}
+            //else {
+            //    setTimeout(function () {
+            //        var ctrl = $("#cmntbl").find("tr td:eq(0)");
+            //        var ctrl1 = $("#cmntbl").find("tr td:eq(1)");
+            //        var width = ctrl[0].offsetWidth + ctrl1[0].offsetWidth;
+            //        $(".adcound1sttd").css('width', width);
+            //    }, 100);
+            //}
+            return false;
+        }
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1);
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+
+        function setCookie(cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toGMTString();
+            document.cookie = cname + "=" + cvalue + "; " + expires;
+        }
+
+    </script>
+</body>
+</html>
+

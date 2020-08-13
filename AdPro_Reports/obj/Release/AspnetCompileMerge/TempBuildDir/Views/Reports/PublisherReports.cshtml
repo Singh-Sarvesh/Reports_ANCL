@@ -1,0 +1,427 @@
+﻿
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+    <title>Adpro - Reports</title>
+    <script type="text/javascript">
+        var appRoot = '@System.Web.Configuration.WebConfigurationManager.AppSettings["RootPath"]';
+    </script>
+    <style tye="text/css">
+        #divPrintReport span {
+            margin-left: 10px;
+        }
+
+        .table{
+            margin-top:10px;
+        }
+
+        .tables tr:nth-child(2n+1) {
+            vertical-align: middle;
+            /*border-left: .3px solid #dddddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #cbcbcb;
+            line-height: 1.5;
+        }
+
+        .tables tr th {
+            vertical-align: middle;
+            /*border-left: .3px solid #ddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #404040;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.44;
+            padding:4px !important;
+        }
+
+        .tables tr th:nth-child(4) {
+            width: 280px;
+        }
+
+        .tables tr th:nth-child(7) {
+            text-align:right;
+        }
+
+        .tables tr th:nth-child(8) {
+            text-align:right;
+        }
+
+        .tables tr th:nth-child(9) {
+            text-align:right;
+        }
+
+        .tables tr th:nth-child(10) {
+            text-align:right;
+        }
+
+        .tables tr td {
+            vertical-align: middle;
+            /*border-top: .3px solid #dddddd;*/
+            font-size: 12px;
+            line-height: 1.44;
+            border: 1px solid #000 !important;
+            padding:4px !important;
+        }
+
+        #AdsGrid tbody tr td:nth-child(7) {
+            text-align: right;
+        }
+
+        #AdsGrid tbody tr td:nth-child(8) {
+            text-align: right;
+        }
+
+        #AdsGrid tbody tr td:nth-child(9) {
+            text-align: right;
+        }
+
+        #AdsGrid tbody tr td:nth-child(10) {
+            text-align: right;
+        }
+
+        .tables tr:nth-child(2n) {
+            vertical-align: middle;
+            border-left: .3px solid #dddddd;
+            border-top: .3px solid #dddddd;
+            background-color: #e7e7e7;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="divPrintReport" style="overflow: hidden;background:#fff;">
+        <div style="text-align:right;margin:10px;" id="btnprintreport">
+            <input type="button" value="Print this page" onclick="PrintReport()" style="width:10% !important" />
+        </div>
+        <div style="margin:10px;">
+            <div style="background: #385723;color: #fff;">
+                <h2 style="text-align:center;" id="reportname"></h2>
+                <div style="font-size:16px;padding:.3rem;font-weight:bolder;">
+                    <div>Booking Date Range : <label id="lblfromdate"></label>&nbsp;to&nbsp;<label id="lbltodate"></label></div>
+                </div>
+            </div>
+            <div>
+                <div id="divlogPopUp" style="overflow: hidden;">
+                    <div id="AdsGrid" style="width:100%;overflow-y:auto;overflow-x:hidden;"></div>
+
+                    @*<h4 style="clear:both;"></h4>
+                    <div id="adscountdiv" style="border-top:1px solid;display:none;font-weight:bolder;">
+                        <table class="table">
+                            <tbody class="tables">
+                                <tr>
+                                    <td style="width:451px;">
+                                        Total ads booked:
+                                    </td>
+                                    <td>
+                                        <label id="lbltotaladsbooked"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Total active ads posted to Adpro:
+                                    </td>
+                                    <td>
+                                        <label id="lbltotalactiveads"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Total Active ads not posted to Adpro:
+                                    </td>
+                                    <td>
+                                        <label id="lbltotalnotactiveads"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Total Ads Cancelled(Posted and Not Posted):
+                                    </td>
+                                    <td>
+                                        <label id="lbladscancelled"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Total Collection:
+                                    </td>
+                                    <td>
+                                        <label id="lbltotalcollection"></label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>*@
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <script src="~/Scripts/Report.js?BuildNo=@System.Web.Configuration.WebConfigurationManager.AppSettings[" BuildNo"]"></script>
+    <script type="text/javascript">
+        var totalbookedads = 0;
+        var totalactivead = 0;
+        var totalnotactivead = 0;
+        var totalcancelads = 0;
+        var totalamt = 0;
+
+        $(document).ready(function () {
+            ReportData();
+        });
+
+
+        function ReportData() {
+            var table = "";
+            qStr = window.location.href.split('#')[0];
+            var FromDate = qStr.split('?')[1].split('=')[1].split('&')[0];
+            var ToDate = qStr.split('?')[1].split('=')[2];
+            $("#lblfromdate").text(FromDate);
+            $("#lbltodate").text(ToDate);
+            var userid = getCookie('LoginUserID');
+            var reportid = getCookie('ReportID');
+            var agent = getCookie('PubAgent');
+            var url = appRoot + "Reports/GetPublisherReportData";
+            var param = {};
+            param.FromDate = FromDate;
+            param.ToDate = ToDate;
+            param.UserID = userid;
+            param.ReportID = reportid;
+            param.AgentID = agent;
+            var result = getresult(url, param);
+            PubnormaliseData(result);
+
+            var h4blank = '<tr><td colspan="3" style="background: #fff;border-left: 1px solid #fff !important;border-right: .9px solid #fff !important;height:15px;"></td></tr>';
+            var str = '<tr><td colspan="2"><label>Total ads booked:</label></td><td style="text-align:right;" colspan="1"><label id="lbltotaladsbooked"></label></td></tr>'
+                + '<tr><td colspan="2"><label>Total active ads posted to Adpro:</label></td><td style="text-align:right;" colspan="1"><label id="lbltotalactiveads"></label></td></tr>'
+                + '<tr><td colspan="2"><label>Total Active ads not posted to Adpro:</label></td><td style="text-align:right;" colspan="1"><label id="lbltotalnotactiveads"></label></td></tr>'
+                + '<tr><td colspan="2"><label>Total Ads Cancelled(Posted and Not Posted):</label></td><td style="text-align:right;" colspan="1"><label id="lbladscancelled"></label></td></tr>'
+                + '<tr><td colspan="2"><label>Total Collection:</label></td><td style="text-align:right;" colspan="1"><label id="lbltotalcollection"></label></td></tr>';
+            $("#AdsGrid table tbody:last").append(h4blank);
+            $("#AdsGrid table tbody:last").append(str);
+
+            
+            $("#lbltotaladsbooked").html(totalbookedads);
+            $("#lbltotalactiveads").html(totalactivead);
+            $("#lbltotalnotactiveads").html(totalnotactivead);
+            $("#lbladscancelled").html(totalcancelads);
+            $("#lbltotalcollection").html(totalamt.toFixed(2));
+
+            var reportname = getCookie('ReportName');
+            $("#reportname").html(reportname);
+        }
+
+        function PubnormaliseData(data) {
+            var crData = {};
+            var dt = [];
+            var normaluserArray = [];
+            var cancelUserArray = [];
+            var canuserIndex = 0;
+            var otherUserIndex = 0;
+            var tp = "";
+            var tq = "";
+            var j = 0, k = 0
+            for (var i = 1; i < data.length; i++) {
+                var orderType = data[i][2];
+                if (tp == "") {
+                    tp = data[i][10];
+                }
+
+                if (tp != data[i][10]) {
+                    tp = data[i][10];
+                    // crData[j] = dt;
+                    crData[j] = { normalUser: normaluserArray, cancelUser: cancelUserArray };
+                    dt = []; j++; k = 0; canuserIndex = 0; otherUserIndex = 0;
+                    //dt[k] = data[i];
+                    normaluserArray = [];
+                    cancelUserArray = [];
+                    if (orderType == "Cancelled") {
+                        cancelUserArray[canuserIndex] = data[i]; canuserIndex++;
+                    } else {
+                        normaluserArray[otherUserIndex] = data[i]; otherUserIndex++;
+                    }
+                } else {
+
+                    if (orderType == "Cancelled") {
+                        cancelUserArray[canuserIndex] = data[i]; canuserIndex++;
+                    } else {
+                        normaluserArray[otherUserIndex] = data[i]; otherUserIndex++;
+                    }
+                }
+                k++;
+            }
+            //crData[j] = dt;
+            crData[j] = { normalUser: normaluserArray, cancelUser: cancelUserArray };
+            var hdata = data[0];
+            for (var index in crData) {
+
+                if (crData[index].normalUser.length > 0) {
+                    var table = PubTotalmakeGridTable(crData[index].normalUser, hdata);
+                    //var str = '<table style="margin-top: 10px;"><tbody class="tables"><tr><td style="width:468px;font-size:14px;"><label>Agent Name : <label>' + crData[index].normalUser[0][10] + '</label></td></tr></label>';
+                    //if (crData[index].normalUser[0][2] == 'Cancelled')
+                    //    str += '<tr><td><label>Cancelled Ads</label></td></tr></tbody></table>';
+                    //else
+                    //    str += '</tbody></table>';
+
+                    //$("#AdsGrid").append(str);
+                    $("#AdsGrid").append(table);
+                   // pubfooter(crData[index].normalUser);
+                }
+
+                if (crData[index].cancelUser.length > 0) {
+
+                    var table = PubTotalmakeGridTable(crData[index].cancelUser, hdata);
+                    //var str = '<table style="margin-top: 10px;"><tbody class="tables"><tr><td style="width:468px;font-size:14px;"><label>Agent Name : <label>' + crData[index].cancelUser[0][10] + '</label></td></tr></label>';
+                    //if (crData[index].cancelUser[0][2] == 'Cancelled')
+                    //    str += '<tr><td><label>Cancelled Ads</label></td></tr></tbody></table>';
+                    //else
+                    //    str += '</tbody></table>';
+
+                    //$("#AdsGrid").append(str);
+                    $("#AdsGrid").append(table);
+                   // pubfooter(crData[index].cancelUser);
+                }
+
+            }
+        }
+
+        function Pubheader(data,newdata) {
+            var thead = $('<thead/>').addClass('tables');
+            var tr = $('<tr/>');
+            //$(thead).append(tr);
+
+            var str = '<tr><td colspan="2"><label>Agent Name : <label>' + newdata[0][10] + '</label></td></tr></label>';
+            if (newdata[0][2] == 'Cancelled')
+                str += '<tr><td colspan="2"><label>Cancelled Ads</label></td></tr>';
+            $(thead).append(str);
+
+            $(thead).append(tr);
+
+            for (var i = 0; i < data.length - 1; i++) {
+                var th = $('<th/>');
+                $(th).html(data[i]);
+                $(tr).append(th);
+            }
+            return thead;
+        }
+
+        function PubTotalmakeGridTable(data, hdata) {
+            var amount = 0;
+            var table = $("<table/>").addClass('table');
+            var th = Pubheader(hdata, data);
+            table.append(th);
+            var tbody = $("<tbody/>").addClass('tables');
+            table.append(tbody);
+            if (data.length > 0) {
+                $.each(data, function (rowIndex, r) {
+                    if (typeof r != 'undefined') {
+                        var row = $("<tr/>");
+                        $.each(r, function (colIndex, c) {
+                            if (colIndex > 9) {
+
+                            }
+                            else {
+                                row.append($("<td/>").text(c));
+                                //  amount = amount + parseFloat(r[8]);
+                            }
+                        });
+                        table.append(row);
+                    }
+                });
+               // $("#adscountdiv").show();
+            }
+            else {
+                table = '<div class="error-box">Sorry !! No Record Found.</div>';
+                $("#adscountdiv").hide();
+            }
+
+            pubfooter(data, tbody);
+
+            return table;
+        }
+
+        function pubfooter(data,tbody) {
+            var amount = 0;
+            var activead = 0;
+            var notactivead = 0;
+            var cancelledad = 0;
+            var str1 = "";
+
+            for (var i = 0; i < data.length; i++) {
+                amount = amount + parseFloat(data[i][9]);
+
+                if (data[i][1] != 0 && data[i][2] != 'Cancelled') {
+                    activead = activead + 1;
+                }
+                else if (data[i][2] != 'Cancelled') {
+                    notactivead = notactivead + 1;
+                }
+                if (data[i][2] == 'Cancelled') {
+                    cancelledad = cancelledad + 1;
+                }
+            }
+            //str1 = '<div style="margin-bottom:60px;"><table style="margin-top: -20px;float:right;font-weight:bolder;"><tbody class="tables"><tr><td style="width:274px;text-align:right;"><label style="margin-right:8px;">Total</label></td><td style="width:117px;"><span style="float:right;">' + amount.toFixed(2) + '<span></td></tr>';
+            //if (data[0][2] == 'Cancelled') {
+            //    str1 += '<tr><td style="width:274px;text-align:right;"><label style="margin-right:8px;">Total Ads Cancelled</label></td><td style="width:117px;"><span style="float:right;">' + data.length + '<span></td></tr></tbody></table></div>';
+            //}
+            //else {
+            //    str1 += '<tr><td style="width:274px;text-align:right;"><label style="margin-right:8px;">Total Ads Booked</label></td><td style="width:117px;"><span style="float:right;">' + data.length + '<span></td></tr></tbody></table></div>';
+            //}
+            //$("#AdsGrid").append(str1);
+
+            str1 = '<tr><td colspan="9" style="text-align:right;"><label style="margin-right:8px;">Total</label></td><td><label style="float:right;">' + amount.toFixed(2) + '<label></td></tr>';
+            if (data[0][2] == 'Cancelled') {
+                str1 += '<tr><td colspan="9" style="text-align:right;"><label style="margin-right:8px;">Total Ads Cancelled</label></td><td><label style="float:right;">' + data.length + '<label></td></tr>';
+            }
+            else {
+                str1 += '<tr><td colspan="9" style="text-align:right;"><label style="margin-right:8px;">Total Ads Booked</label></td><td><label style="float:right;">' + data.length + '<label></td></tr>';
+            }
+            $(tbody).append(str1);
+
+
+            var totalads = data.length;
+            totalbookedads = totalbookedads + totalads;
+           // $("#lbltotaladsbooked").html(totalbookedads);
+
+            var ttlactivead = activead;
+            totalactivead = totalactivead + ttlactivead;
+           // $("#lbltotalactiveads").html(totalactivead);
+
+            var ttlnotactivead = notactivead;
+            totalnotactivead = totalnotactivead + ttlnotactivead;
+           // $("#lbltotalnotactiveads").html(totalnotactivead);
+
+            var ttlcancelads = cancelledad;
+            totalcancelads = totalcancelads + ttlcancelads;
+           // $("#lbladscancelled").html(totalcancelads);
+
+            var totalamount = amount;
+            totalamt = totalamt + totalamount;
+           // $("#lbltotalcollection").html(totalamt.toFixed(2));
+
+        }
+
+
+        function PrintReport() {
+            $("#btnprintreport").hide();
+            window.print();
+            $("#btnprintreport").show();
+            return false;
+        }
+    </script>
+</body>
+</html>
+

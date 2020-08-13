@@ -1,0 +1,98 @@
+﻿<form>
+    <header>
+        <a class="site-menu"><img src="~/Content/menu-32.png" alt="" /></a>
+        <a class="site-name" href="#"><img src="~/Content/logo.png" style="height:32px;" alt="" onclick="return window.location.reload(true)" /></a>
+        <a class="site-report" href="#">
+            <span style="margin-left:370px;">Report</span>
+        </a>
+        <span class="user-detail"></span>
+    </header>
+    <table style="width: 100%; height: 100%;">
+        <tr>
+            <td id="tdr" style="width: 20%; vertical-align: top; color: white;background:#385723; height: calc(100vh - 60px)">
+                <div>
+                    <div style="float: left; padding-top: 4px; padding-left: 5px;">
+                        <div class="bs-example">
+                            <div id="tab"></div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td style="vertical-align:top;background:#eeeeee;color:#000;" id="rpttd">
+                <div>
+                    <span class="Header" id="spnheader">Print Receipt</span>
+                </div>
+                <div id="bookingiddiv">
+                    <label>Enter BookingID</label>
+                    <input type="text" id="txtbookingid" onkeydown="return validateCharacters(this,event, 'numeric')" maxlength="10" />
+                    <input type="button" value="Print Receipt" class="Preview-btn" onclick="PrintReportWindow()">
+                </div>
+                <div id="datediv" style="display:none;">
+                    <label>Booking Date From</label>
+                    <input type="text" id="txtfromdate" />
+                    <label>Booking Date To</label>
+                    <input type="text" id="txttodate" />
+                    <input type="button" value="OK" class="Preview-btn" onclick="CommonReportData()">
+                </div>
+
+                <div id="totaldiv" style="display:none;">
+                    <label>Booking Date From</label>
+                    <input type="text" id="txttotalfromdate" />
+                    <label>Booking Date To</label>
+                    <input type="text" id="txttotaltodate" />
+                    <input type="button" value="OK" class="Preview-btn" onclick="AgentCollectionReportData()">
+                </div>
+
+                <div id="agentdiv" style="display:none;">
+                    <label>Booking Date From</label>
+                    <input type="text" id="txtagentfromdate" />
+                    <label>Booking Date To</label>
+                    <input type="text" id="txtagenttodate" />
+                    <input type="button" value="OK" class="Preview-btn" onclick="AgentCommReportData()">
+                </div>
+                <div id="publisherdiv" style="display:none;">
+                    <div>
+                        <label>Agent</label>
+                        <input type="text" id="pubagencyid" parameter="agency" autocomplete="off" />
+                    </div>
+                    <div>
+                        <label>Booking Date From</label>
+                        <input type="text" id="txtpubfromdate" />
+                        <label>Booking Date To</label>
+                        <input type="text" id="txtpubtodate" />
+                        <input type="button" value="OK" class="Preview-btn" onclick="PublisherReportData()">
+                    </div>
+                </div>
+                <div id="deferreddiv" style="display:none;">
+                    <div>
+                        <label>Language</label>
+                        <select id="ddllanguage"></select>
+                    </div>
+                    <div>
+                        <label>Agent</label>
+                        <input type="text" id="defagencyid" parameter="agency" autocomplete="off" />
+                    </div>
+                    <div>
+                        <label>AdType</label>
+                        <select id="ddladtype"></select>
+                    </div>
+                    <div>
+                        <label>Booking Date From</label>
+                        <input type="text" id="txtdeffromdate" />
+                        <label>Booking Date To</label>
+                        <input type="text" id="txtdeftodate" />
+                        <input type="button" value="OK" class="Preview-btn" onclick="DefferedReportData()">
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div id="divProcessingBox" style="display: none; ">
+        <img src="~/Content/images/processing.gif" style="display:block;width:100px;height:100px;" />
+    </div>
+</form>
+
+
+
+
+

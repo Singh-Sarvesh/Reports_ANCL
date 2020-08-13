@@ -1,0 +1,174 @@
+﻿
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+    <title>Adpro - Reports</title>
+    <script type="text/javascript">
+        var appRoot = '@System.Web.Configuration.WebConfigurationManager.AppSettings["RootPath"]';
+    </script>
+    <style tye="text/css">
+        #divPrintReport span {
+            margin-left: 10px;
+        }
+
+        .tables tr:nth-child(2n+1) {
+            vertical-align: middle;
+            /*border-left: .3px solid #dddddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #cbcbcb;
+            line-height: 1.5;
+        }
+
+        .tables tr th {
+            vertical-align: middle;
+            /*border-left: .3px solid #ddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #404040;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.44;
+            padding:4px !important;
+        }
+
+        .tables tr th:nth-child(3) {
+            width:250px;
+        }
+        
+        .tables tr th:nth-child(7) {
+            width:250px;
+        }
+
+        .tables tr td {
+            vertical-align: middle;
+            /*border-top: .3px solid #dddddd;*/
+            font-size: 12px;
+            line-height: 1.44;
+            border: 1px solid #000 !important;
+            padding:4px !important;
+        }
+
+        .tables tr:nth-child(2n) {
+            vertical-align: middle;
+            /*border-left: .3px solid #dddddd;
+            border-top: .3px solid #dddddd;*/
+            border: 1px solid #000 !important;
+            background-color: #e7e7e7;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="divPrintReport" style="overflow: hidden;background:#fff;">
+        <div style="text-align:right;margin:10px;" id="btnprintreport">
+            <input type="button" value="Print this page" onclick="PrintReport()" style="width:10% !important" />
+        </div>
+        <div style="margin:10px;">
+            <div style="background: #385723;color: #fff;">
+                <h2 style="text-align:center;" id="reportname"></h2>
+                <div style="font-size:16px;padding:.3rem;font-weight:bolder;">
+                    <div>Booking Date : <label id="lblfromdate"></label>&nbsp;to&nbsp;<label id="lbltodate"></label></div>
+                    <label id="lbladtype"></label>
+                </div>
+            </div>
+            <div>
+                <div id="divlogPopUp" style="overflow-x: hidden;overflow-y:auto">
+                    <div id="AdsGrid"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <script src="~/Scripts/Report.js?BuildNo=@System.Web.Configuration.WebConfigurationManager.AppSettings[" BuildNo"]"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            ReportData();
+        });
+
+
+        function ReportData() {
+            var table = "";
+            qStr = window.location.href.split('#')[0];
+            var FromDate = qStr.split('?')[1].split('=')[1].split('&')[0];
+            var ToDate = qStr.split('?')[1].split('=')[2];
+            $("#lblfromdate").text(FromDate);
+            $("#lbltodate").text(ToDate);
+            var userid = getCookie('LoginUserID');
+            var reportid = getCookie('ReportID');
+            var language = getCookie('Language');
+            var agent = getCookie('DefAgent');
+            var adtype = getCookie('Adtype');
+            var url = appRoot + "Reports/GetDeferredReportData";
+            var param = {};
+            param.FromDate = FromDate;
+            param.ToDate = ToDate;
+            param.UserID = userid;
+            param.ReportID = reportid;
+            param.LangID = language;
+            param.AgentID = agent;
+            param.AdtypeID = adtype;
+            var result = getresult(url, param);
+            table = makeGridTable(result);
+            $("#AdsGrid").append(table);
+            var adtypename = getCookie('AdtypeName');
+            if (adtypename == "") {
+                adtypename = "All Adtype";
+            }
+            $("#lbladtype").html(adtypename);
+            var reportname = getCookie('ReportName');
+            $("#reportname").html(reportname);
+        }
+
+        function makeGridTable(data) {
+            var table = $("<table/>").addClass('table');
+            var tbody = $("<tbody/>").addClass('tables').attr('id', 'cmntbl');;
+            table.append(tbody);
+            if (data.length > 1) {
+                $.each(data, function (rowIndex, r) {
+                    var row = $("<tr/>");
+                    $.each(r, function (colIndex, c) {
+                        if (colIndex == 6 || colIndex == 7 ) {
+
+                        }
+                        else {
+                            row.append($("<t" + (rowIndex == 0 ? "h" : "d") + "/>").text(c));
+                        }
+                    });
+                    table.append(row);
+                    if (rowIndex > 0) {
+                        if (r[6] != "")
+                            table.append('<tr><td colspan="7"><label style="font-weight:800">' + r[6].split(':')[0] + '  - </label><label>' + r[6].split(':')[1] + '</label></td></tr>');
+                        if (r[7] != "")
+                            table.append('<tr><td colspan="7"><label style="font-weight:800">' + r[7].split(':')[0] + '  - </label><label>' + r[7].split(':')[1] + '</label></td></tr>');
+                    }
+                });
+            }
+            else {
+                table = '<div class="error-box">Sorry !! No Record Found.</div>';
+            }
+            return table;
+        }
+
+        function PrintReport() {
+            $("#btnprintreport").hide();
+            window.print();
+            $("#btnprintreport").show();
+            return false;
+        }
+    </script>
+</body>
+</html>
+

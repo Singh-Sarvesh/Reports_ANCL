@@ -1,0 +1,218 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html style="background: #808080;">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Adpro - Reports</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/Site.css?BuildNo=@System.Web.Configuration.WebConfigurationManager.AppSettings["BuildNo"]" rel="stylesheet" />
+    <style tye="text/css">
+    </style>
+</head>
+<body>
+    <script type="text/javascript">
+        var appRoot = '@System.Web.Configuration.WebConfigurationManager.AppSettings["RootPath"]';
+        var serverDate = new Date(@DateTime.Now.Month+'/' +    @DateTime.Now.Day+'/' +    @DateTime.Now.Year);
+    </script>
+    <div style="background:#70ad47;color:#fff;">
+        @{
+            Html.RenderPartial("PartialView");
+        }
+    </div>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery-ui.js"></script>
+    <script src="~/Scripts/Report.js?BuildNo=@System.Web.Configuration.WebConfigurationManager.AppSettings["BuildNo"]"></script>
+    <script type="text/javascript">
+        var BasePath = '@Url.Content("~")';
+        $('#divProcessingBox').dialog({
+            autoOpen: false,
+            height: 130,
+            width: 200,
+            dialogClass: 'dialog-trns-brdr',
+            modal: true,
+        });
+
+        $('#txttotalfromdate').datepicker({
+            numberOfMonths: 1,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = selected.split('/');;
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = $('#txttotaltodate').val().split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txttotaltodate').val(selected);
+                }
+            }
+        }).datepicker("setDate", new Date());;
+        $('#txttotaltodate').datepicker({
+            numberOfMonths: 1,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = $('#txttotalfromdate').val().split('/');
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = selected.split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txttotalfromdate').val(selected);
+                }
+            }
+        }).datepicker("setDate", new Date());
+
+
+        $('#txtagentfromdate').datepicker({
+            numberOfMonths: 1,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = selected.split('/');;
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = $('#txtagenttodate').val().split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txtagenttodate').val(selected);
+                }
+            }
+        }).datepicker("setDate", new Date());;
+        $('#txtagenttodate').datepicker({
+            numberOfMonths: 1,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = $('#txtagentfromdate').val().split('/');
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = selected.split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txtagentfromdate').val(selected);
+                }
+            }
+        }).datepicker("setDate", new Date());
+
+
+        $('#txtpubfromdate').datepicker({
+            numberOfMonths: 1,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = selected.split('/');;
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = $('#txtpubtodate').val().split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txtpubtodate').val(selected);
+                }
+            }
+        }).datepicker("setDate", new Date());;
+        $('#txtpubtodate').datepicker({
+            numberOfMonths: 1,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = $('#txtpubfromdate').val().split('/');
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = selected.split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txtpubfromdate').val(selected);
+                }
+            }
+        }).datepicker("setDate", new Date());
+
+
+        $('#txtdeffromdate').datepicker({
+            numberOfMonths: 1,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = selected.split('/');;
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = $('#txtdeftodate').val().split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txtdeftodate').val(selected);
+                }
+            }
+        }).datepicker("setDate", new Date());;
+        $('#txtdeftodate').datepicker({
+            numberOfMonths: 1,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = $('#txtdeffromdate').val().split('/');
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = selected.split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txtdeffromdate').val(selected);
+                }
+            }
+        }).datepicker("setDate", new Date());
+
+        $('#txtfromdate').datepicker({
+            numberOfMonths: 1,
+            //maxDate: 0,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = selected.split('/');;
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = $('#txttodate').val().split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txttodate').val(selected);
+                }
+            }
+        }).datepicker("setDate", new Date());;
+        $('#txttodate').datepicker({
+            numberOfMonths: 1,
+           // minDate: 0,
+            inline: true,
+            dateFormat: 'dd/mm/yy',
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (selected) {
+                var parts = $('#txtfromdate').val().split('/');
+                var datefrom = Number(parts[2] + parts[1] + parts[0]);
+                parts1 = selected.split('/');
+                var dateto = Number(parts1[2] + parts1[1] + parts1[0]);
+                if (datefrom > dateto) {
+                    $('#txtfromdate').val(selected);
+                }
+
+                 // $('#txtfromdate').val(selected);
+               // var dt = new Date(selected);
+               // dt.setDate(dt.getDate());
+               // $('#txtfromdate').datepicker("option", "maxDate", selected);
+            }
+        }).datepicker("setDate", new Date());
+
+    </script>
+</body>
+</html>
